@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <script>window.MOVIETECA_PREVIEW = true;</script>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="MovieTeca: seu catálogo individual de filmes integrado ao Google Sheets.">
+  <title>MovieTeca · Prévia offline</title>
+  <style>
+    :root {
+      --bg:#0b0d17; --surface:#141827; --surface2:#1b2134; --border:#2b3247;
+      --text:#f7f7fb; --muted:#a3aec7; --muted2:#7f8ca5; --accent:#bb91ff;
+      --accent2:#e39fd6; --green:#74d8ac; --red:#ff9ea5;
+      --shadow:0 20px 60px rgba(0,0,0,.2);
+    }
+    *{box-sizing:border-box} html{scroll-behavior:smooth}
+    body{margin:0;background:radial-gradient(circle at 75% -15%,rgba(147,92,229,.18),transparent 38%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;min-height:100vh}
+    button,input,select{font:inherit} button{cursor:pointer} button:disabled{opacity:.52;cursor:wait}
+    .layout{display:grid;grid-template-columns:244px minmax(0,1fr);min-height:100vh}
+    aside{border-right:1px solid var(--border);background:rgba(12,15,28,.87);padding:30px 18px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+    .brand{display:flex;align-items:center;gap:12px;padding:0 10px 35px}
+    .brand-icon{font-size:26px;display:grid;place-items:center;background:linear-gradient(140deg,#7f55cd,#b16edf);border-radius:15px;height:48px;width:48px;box-shadow:0 8px 28px rgba(167,123,251,.22)}
+    .brand strong{display:block;font-size:17px;letter-spacing:-.5px}.brand small{color:var(--muted);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+    .nav{display:grid;gap:8px}.nav button{width:100%;border:1px solid transparent;border-radius:13px;background:none;color:var(--muted);text-align:left;padding:13px 15px;display:flex;gap:13px;align-items:center;font-size:14px;font-weight:600;transition:.15s}
+    .nav button:hover{background:var(--surface2);color:var(--text)}.nav button.active{background:rgba(179,134,248,.15);border-color:rgba(179,134,248,.32);color:#e6d0ff}
+    .nav span{font-size:17px;width:20px;text-align:center}.aside-foot{margin-top:auto;padding:18px 12px;color:var(--muted2);font-size:12px;line-height:1.7}
+    main{min-width:0;padding:36px clamp(20px,4vw,70px) 70px;max-width:1450px;width:100%;margin:auto}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:35px}
+    .eyebrow{color:var(--accent);text-transform:uppercase;letter-spacing:.18em;font-size:11px;font-weight:800;margin:0 0 9px}
+    h1{font-size:clamp(27px,3.2vw,42px);letter-spacing:-.045em;line-height:1.1;margin:0 0 8px}
+    h2{font-size:21px;letter-spacing:-.03em;margin:0}h3{font-size:17px;letter-spacing:-.02em;margin:0}
+    .sub{color:var(--muted);font-size:14px;margin:0;line-height:1.6}
+    .btn{border:1px solid var(--border);background:#242a3d;color:var(--text);padding:11px 17px;border-radius:12px;font-weight:750;font-size:13px;display:inline-flex;align-items:center;justify-content:center;gap:9px;white-space:nowrap;min-height:42px;transition:.16s}
+    .btn:hover:not(:disabled){filter:brightness(1.14);transform:translateY(-1px)}.btn.primary{background:linear-gradient(110deg,#b187f8,#cf9fea);color:#20122f;border-color:transparent}
+    .btn.outline{background:transparent}.btn.small{padding:7px 12px;min-height:34px;font-size:12px}
+    .btn.danger{color:var(--red);border-color:rgba(255,158,165,.25);background:transparent}
+    .top-actions{display:flex;gap:10px;align-items:center}
+    .hero{border-radius:22px;border:1px solid rgba(177,128,249,.24);background:radial-gradient(circle at 98% 0%,rgba(218,133,188,.22),transparent 37%),linear-gradient(130deg,#211c3b,#151a2b 80%);padding:clamp(23px,3vw,36px);display:flex;align-items:center;justify-content:space-between;gap:25px;box-shadow:var(--shadow)}
+    .hero .tiny{color:#d6bdf8;text-transform:uppercase;letter-spacing:.15em;font-weight:800;font-size:10px;margin:0 0 12px}
+    .hero h2{font-size:clamp(25px,2.6vw,34px);max-width:560px;margin:0 0 12px}.hero p{max-width:540px;color:#b8b8d5;line-height:1.7;font-size:14px;margin:0 0 24px}
+    .hero-art{font-size:clamp(65px,9vw,122px);filter:drop-shadow(0 15px 20px rgba(0,0,0,.24));line-height:1.1}
+    .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:22px 0 28px}
+    .stat{background:var(--surface);border:1px solid var(--border);border-radius:17px;padding:20px;min-height:123px}
+    .stat .stat-icon{float:right;color:var(--accent);font-size:23px}.stat .label{color:var(--muted);font-size:12px;font-weight:650;margin:0 0 12px}
+    .stat .value{font-size:32px;font-weight:850;letter-spacing:-.045em;line-height:1.1;margin:0}.stat .hint{color:var(--muted2);font-size:11px;margin:8px 0 0}
+    .panels{display:grid;grid-template-columns:1.06fr .94fr;gap:20px}
+    .panel{border:1px solid var(--border);background:var(--surface);border-radius:18px;padding:23px;min-width:0}
+    .panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 21px}.panel-head p{color:var(--muted);font-size:12px;margin:6px 0 0}
+    .progress-label{display:flex;justify-content:space-between;gap:12px;margin-bottom:11px;font-weight:700;font-size:14px}.progress-label strong{color:var(--accent)}
+    .progress-track{background:#30334b;border-radius:99px;height:13px;overflow:hidden}.progress-track>div{height:100%;background:linear-gradient(90deg,#9c7cec,#e79ac9);border-radius:99px}
+    .mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:22px}
+    .mini{border:1px solid var(--border);border-radius:12px;padding:14px}.mini span{display:block;color:var(--muted);font-size:11px;margin-bottom:8px}.mini strong{font-size:22px}
+    .rank-list{display:grid;gap:13px}.rank-row{display:grid;grid-template-columns:30px minmax(0,1fr) 46px;align-items:center;gap:10px;font-size:13px}
+    .rank-n{color:var(--accent);font-weight:900}.rank-name{white-space:nowrap;text-overflow:ellipsis;overflow:hidden}.rank-score{text-align:right;color:var(--green);font-weight:800}
+    .section{margin-top:28px}.section-head{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:18px}
+    .filters{display:grid;grid-template-columns:minmax(175px,1.25fr) repeat(3,minmax(120px,.8fr));gap:12px;margin:20px 0 22px}
+    .field{display:grid;gap:8px}.field label{font-size:12px;font-weight:750;color:#d6dbea}
+    input,select{background:#111624;border:1px solid #384058;border-radius:12px;padding:12px 13px;color:var(--text);min-height:46px;width:100%;outline:none}
+    input::placeholder{color:#77849d} input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(185,145,255,.12)}
+    select option{background:#131827;color:#fff}
+    .catalog-list{display:grid;gap:10px}
+    .movie-row{background:var(--surface);border:1px solid var(--border);border-radius:15px;padding:15px 18px;display:flex;align-items:center;gap:15px}
+    .poster{background:linear-gradient(140deg,#483064,#253550);border:1px solid #52436d;border-radius:12px;display:grid;place-items:center;font-size:24px;width:52px;height:57px;flex-shrink:0}
+    .movie-body{min-width:0;flex:1}.movie-title{font-size:14px;font-weight:800;margin:0 0 7px;overflow-wrap:anywhere}.movie-meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;color:var(--muted);font-size:12px}
+    .genre-tag{display:inline-flex;border:1px solid rgba(187,145,255,.27);background:rgba(187,145,255,.09);color:#dbc8fa;border-radius:8px;padding:4px 8px;font-weight:700;font-size:11px}
+    .pill{display:inline-flex;align-items:center;padding:4px 9px;border-radius:99px;font-size:10px;font-weight:800;white-space:nowrap}
+    .pill.done{background:rgba(116,216,172,.11);color:var(--green)}.pill.pending{background:rgba(186,147,255,.13);color:#d8b8ff}
+    .score{display:flex;align-items:center;gap:5px;font-weight:850;color:#f5c78c;font-size:14px}
+    .row-actions{display:flex;align-items:center;gap:11px}.catalog-foot{color:var(--muted2);font-size:12px;margin-top:18px}
+    .night-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(290px,.85fr);gap:20px}
+    .chosen{min-height:245px;position:relative;overflow:hidden;border:1px solid rgba(200,145,244,.3);background:linear-gradient(135deg,#402955,#1b1e35 72%);border-radius:20px;padding:28px}
+    .chosen .eyebrow{color:#edc7ff}.chosen h2{font-size:clamp(25px,3vw,36px);max-width:540px;overflow-wrap:anywhere;margin:15px 0}.chosen .iconart{position:absolute;right:16px;bottom:0;font-size:100px;opacity:.13;pointer-events:none}
+    .chosen p{color:#d0c5db;font-size:13px;line-height:1.65;max-width:520px}.chosen-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:25px;position:relative}
+    .form-panel{border:1px solid var(--border);background:var(--surface);border-radius:19px;padding:25px}.form-panel h2{margin-bottom:8px}.form-panel>p{margin:0 0 23px;color:var(--muted);line-height:1.65;font-size:13px}
+    .stack{display:grid;gap:18px}.form-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.form-actions>.btn{flex:1}
+    .wide-form{max-width:700px}.wide-form .field{margin-bottom:20px}.form-note{padding:15px 17px;border:1px solid #32394e;border-radius:12px;background:#1b2132;color:var(--muted);font-size:12px;line-height:1.7;margin-top:18px}
+    .empty{text-align:center;padding:45px 20px;border-radius:16px;background:var(--surface);border:1px dashed #42465e;color:var(--muted);line-height:1.7}.empty .emoji{display:block;font-size:35px;margin-bottom:10px}
+    .loading{padding:60px 18px;text-align:center;color:var(--muted)}.loading .spin{font-size:37px;display:block;margin-bottom:14px;animation:rotate 2s linear infinite}
+    @keyframes rotate{to{transform:rotate(360deg)}}
+    .toast{position:fixed;right:25px;bottom:24px;max-width:min(430px,calc(100vw - 35px));z-index:10;color:var(--text);background:#233048;border:1px solid #51627b;padding:16px 20px;border-radius:13px;box-shadow:0 20px 60px rgba(0,0,0,.4);font-size:13px;line-height:1.5}
+    .toast.error{border-color:#b45867;background:#452a37}.muted{color:var(--muted)}.text-end{text-align:right}
+    @media(max-width:1100px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.night-grid{grid-template-columns:1fr}.panels{grid-template-columns:1fr}}
+    @media(max-width:1250px){.filters{grid-template-columns:repeat(2,minmax(0,1fr))}.filters .search{grid-column:1/-1}}
+    @media(max-width:760px){.layout{grid-template-columns:minmax(0,1fr)} aside{position:static;height:auto;padding:15px 16px;border-right:0;border-bottom:1px solid var(--border)}.brand{padding:0 0 13px}.brand-icon{height:39px;width:39px;font-size:21px}.brand strong{font-size:15px}.nav{display:flex;gap:4px;overflow-x:auto;min-width:0;max-width:100%}.nav button{width:auto;font-size:11px;padding:10px 12px;white-space:nowrap;flex-shrink:0;gap:5px}.nav span{font-size:14px}.aside-foot{display:none}main{padding:25px 16px 70px}.topbar{align-items:flex-start}.top-actions{gap:6px}.top-actions .btn{font-size:12px;padding:9px}.hero-art{display:none}.hero{padding:25px}.movie-row{padding:13px;gap:10px}.row-actions{flex-direction:column;gap:6px;align-items:flex-end}.filters{grid-template-columns:1fr 1fr}.filters .search{grid-column:1/-1}}
+    @media(max-width:460px){.stats{gap:9px}.stat{padding:16px 13px;min-height:108px}.stat .value{font-size:28px}.stat .stat-icon{font-size:16px}.poster{height:48px;width:40px;font-size:19px}.movie-title{font-size:13px}.row-actions .btn{font-size:11px;padding:5px 8px;min-height:32px}.panel{padding:18px}.hero h2{font-size:25px}.section-head{align-items:flex-start}.top-actions .btn .hide-mobile{display:none}}
+  
+    .demo-banner{position:sticky;top:0;z-index:5;background:#2c2443;border-bottom:1px solid #745c9a;padding:12px clamp(16px,4vw,42px);color:#f3e9ff;font-size:12px;display:flex;align-items:center;gap:15px;flex-wrap:wrap}
+    .demo-banner[hidden]{display:none!important}.demo-banner strong{color:#fff}.demo-banner .btn{min-height:31px;padding:6px 11px;font-size:11px}
+    .mini-title{font-size:14px!important;line-height:1.35;display:block;overflow-wrap:anywhere;max-width:100%}
+    .hero .btn{margin-right:4px;margin-bottom:6px}.form-panel .empty{margin-top:20px}
+    button:focus-visible{outline:3px solid #eac7ff;outline-offset:3px}
+    @media(max-width:760px){.demo-banner{position:static}.demo-banner .btn{width:auto}}
+
+    /* Créditos do autor, visíveis no fim de todas as telas. */
+    main{display:flex;flex-direction:column;min-height:100vh}
+    .site-footer{margin-top:auto;padding:26px 10px 0;border-top:1px solid var(--border);text-align:center;color:var(--muted2);font-size:12px;line-height:1.8;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px}
+    .site-footer .footer-separator{color:#777f96;padding:0 2px}
+    .developer-link{color:#d1b3ff;font-weight:800;text-decoration:none;border-bottom:1px solid transparent;transition:color .15s,border-color .15s}
+    .developer-link:hover,.developer-link:focus-visible{color:#f4ddff;border-bottom-color:currentColor;outline-offset:4px}
+</style>
+</head>
+<body>
+  <div id="demoBanner" class="demo-banner" hidden>
+    <strong>PRÉVIA OFFLINE · dados fictícios</strong>
+    <span>Alterações ficam apenas neste navegador. Nenhum Google Sheets será modificado.</span>
+    <button type="button" class="btn outline" data-action="demo-empty">Começar do zero</button>
+    <button type="button" class="btn outline" data-action="demo-reset">Restaurar exemplo</button>
+  </div>
+  <div class="layout">
+    <aside>
+      <div class="brand"><div class="brand-icon">🎞️</div><div><strong>MovieTeca</strong><small>Minha coleção</small></div></div>
+      <nav class="nav" id="nav" aria-label="Navegação principal">
+        <button data-nav="dashboard" class="active"><span>◫</span> Visão geral</button>
+        <button data-nav="catalog"><span>▤</span> Catálogo</button>
+        <button data-nav="night"><span>✦</span> Filme da vez</button>
+        <button data-nav="add"><span>＋</span> Adicionar filme</button>
+      </nav>
+      <div class="aside-foot">Seu histórico de filmes, do seu jeito.<br>Salvo na sua própria planilha Google Sheets.</div>
+    </aside>
+    <main>
+      <header class="topbar">
+        <div><p class="eyebrow">Minha coleção · Minhas notas</p><h1 id="pageTitle">Sua coleção de filmes</h1><p class="sub" id="pageDescription">Acompanhe o que assistiu e descubra o próximo título.</p></div>
+        <div class="top-actions"><button class="btn outline" data-action="refresh" title="Atualizar dados da planilha">↻ <span class="hide-mobile">Atualizar</span></button></div>
+      </header>
+      <div id="view" aria-live="polite"><div class="loading"><span class="spin">✦</span> Carregando seu catálogo...</div></div>
+      <footer class="site-footer" aria-label="Créditos e contato do desenvolvedor">
+        <span>Desenvolvido por <span class="footer-separator" aria-hidden="true">/</span> <span lang="en">Powered by</span></span>
+        <a class="developer-link" id="developerEmailLink" href="mailto:?subject=Desenvolvimento%20do%20App%2FSite%20de%20filmes%20%2F%20Movie%20List%20App%2FWebsite%20Development&body=Oi%2C%20gostaria%20de%20falar%20com%20voc%C3%AA%20sobre%20seu%20app%2Fsite%20de%20lista%20de%20filmes.%0A%0AHi%2C%20I%20would%20like%20to%20talk%20to%20you%20about%20your%20movie%20list%20app%2Fwebsite." title="Enviar e-mail para Gordeath / Email Gordeath" aria-label="Gordeath — contato por e-mail / email contact">Gordeath</a>
+      </footer>
+    </main>
+  </div>
+  <div id="toast" role="status" style="display:none"></div>
+<script>
+'use strict';
+
+// CRÉDITO DO PROJETO — contato com Gordeath.
+// Antes de publicar, configure um e-mail para receber as mensagens.
+// Exemplo: const GORDEATH_EMAIL = 'contato@seudominio.com';
+// Sem destinatário, o clique abre apenas o rascunho de e-mail.
+const GORDEATH_EMAIL = '';
+const CONTACT_SUBJECT = 'Desenvolvimento do App/Site de filmes / Movie List App/Website Development';
+const CONTACT_BODY = 'Oi, gostaria de falar com você sobre seu app/site de lista de filmes.\n\nHi, I would like to talk to you about your movie list app/website.';
+const developerEmailLink = document.getElementById('developerEmailLink');
+if (developerEmailLink) {
+  developerEmailLink.href = `mailto:${GORDEATH_EMAIL.trim()}?subject=${encodeURIComponent(CONTACT_SUBJECT)}&body=${encodeURIComponent(CONTACT_BODY)}`;
+}
+
+const IS_PREVIEW = window.MOVIETECA_PREVIEW === true;
+const DEMO_KEY = 'movieteca_offline_demo_v1';
+const GENRES = [
+  'Ação',
+  'Animação',
+  'Aventura',
+  'Biografia',
+  'Comédia',
+  'Crime',
+  'Documentário',
+  'Drama',
+  'Esporte',
+  'Família',
+  'Fantasia',
+  'Faroeste',
+  'Ficção científica',
+  'Guerra',
+  'História',
+  'Mistério',
+  'Musical',
+  'Romance',
+  'Suspense',
+  'Terror',
+  'Outros'
+];
+const DEMO_SEED = [
+  {title:'A Cidade de Vidro', score:8.5, watched:true, genre:'Ficção científica'},
+  {title:'O Último Trem', score:9, watched:true, genre:'Drama'},
+  {title:'Horizonte Azul', score:7.5, watched:true, genre:'Aventura'},
+  {title:'Estação Aurora', score:null, watched:false, genre:'Ficção científica'},
+  {title:'Caminhos do Sol', score:null, watched:false, genre:'Romance'},
+  {title:'Noites de Outono', score:null, watched:false, genre:'Suspense'},
+  {title:'A Ilha das Sombras', score:null, watched:false, genre:'Terror'}
+];
+const state = {
+  data:null, tab:'dashboard', busy:false,
+  search:'', filter:'all', genre:'all', order:'original', editMovie:null
+};
+const byId = id => document.getElementById(id);
+const h = value => String(value == null ? '' : value).replace(/[&<>"']/g,
+  char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+const genreOptions = GENRES.map(genre=>`<option value="${h(genre)}">${h(genre)}</option>`).join('');
+const fmt = (number, digits=1) => number == null ? '—' : Number(number).toLocaleString('pt-BR', {maximumFractionDigits:digits,minimumFractionDigits:digits});
+const normalize = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toUpperCase();
+const all = () => state.data && Array.isArray(state.data.movies)
+  ? state.data.movies.filter(m => m && Number(m.row) >= 2 && m.title && normalize(m.title) !== 'FILMES').slice().sort((a,b)=>a.row-b.row)
+  : [];
+const watched = () => all().filter(m=>m.watched);
+const pending = () => all().filter(m=>!m.watched);
+const average = list => {
+  const scores=list.map(m=>m.score).filter(n=>typeof n==='number' && Number.isFinite(n));
+  return scores.length ? scores.reduce((a,b)=>a+b,0)/scores.length : null;
+};
+const actionButton=(label,action,classes='',disabled=false) => `<button type="button" class="btn ${classes}" data-action="${action}" ${disabled?'disabled data-permanent-disabled':''}>${label}</button>`;
+
+function showToast(message, error=false) {
+  const el=byId('toast');
+  el.textContent=message;
+  el.className='toast'+(error?' error':'');
+  el.style.display='block';
+  clearTimeout(showToast.timer);
+  showToast.timer=setTimeout(()=>{el.style.display='none';},4200);
+}
+function setBusy(busy) {
+  document.querySelectorAll('button[data-action],button[data-nav]').forEach(button=>{
+    if(busy)button.disabled=true;
+    else if(!button.hasAttribute('data-permanent-disabled'))button.disabled=false;
+  });
+}
+function callServer(name, ...args) {
+  if (IS_PREVIEW) return Promise.resolve().then(()=>demoCall(name,...args));
+  return new Promise((resolve,reject)=>{
+    if (!(window.google && google.script && google.script.run)) {
+      reject(new Error('Abra o aplicativo usando a URL da implantação do Google Apps Script.'));
+      return;
+    }
+    google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)[name](...args);
+  });
+}
+async function runMutation(name,...args) {
+  if(state.busy) return false;
+  state.busy=true;
+  setBusy(true);
+  try {
+    state.data=await callServer(name,...args);
+    render();
+    return true;
+  } catch(err) {
+    showToast(err && err.message ? err.message : 'Erro ao salvar a alteração.',true);
+    return false;
+  } finally {
+    state.busy=false;
+    setBusy(false);
+  }
+}
+async function refresh() {
+  if(state.busy)return false;
+  state.busy=true;
+  setBusy(true);
+  try {
+    state.data=await callServer('getAppData');
+    render();
+    return true;
+  } catch(err) {
+    const message=err && err.message ? err.message : 'Falha ao carregar a planilha.';
+    showToast(message,true);
+    if(!state.data)byId('view').innerHTML=`<div class="empty"><span class="emoji">⚠️</span><strong>Não foi possível abrir a coleção.</strong><p>${h(message)}</p></div>`;
+    return false;
+  } finally {
+    state.busy=false;
+    setBusy(false);
+  }
+}
+function navigate(tab) {
+  if(tab!=='night')state.editMovie=null;
+  state.tab=tab;
+  render();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function render() {
+  if(!state.data)return;
+  const titles={
+    dashboard:['Sua coleção de filmes','Acompanhe o que assistiu e descubra o próximo título.'],
+    catalog:['Meu catálogo','Consulte, pesquise e organize seus filmes.'],
+    night:['Filme da vez','Escolha, assista e registre sua avaliação.'],
+    add:['Adicionar filme','Amplie sua lista com novos títulos.']
+  };
+  const [title,description]=titles[state.tab] || titles.dashboard;
+  byId('pageTitle').textContent=title;
+  byId('pageDescription').textContent=description;
+  document.querySelectorAll('[data-nav]').forEach(button=>button.classList.toggle('active',button.dataset.nav===state.tab));
+  if(state.tab==='dashboard')renderDashboard();
+  if(state.tab==='catalog')renderCatalog();
+  if(state.tab==='night')renderNight();
+  if(state.tab==='add')renderAdd();
+}
+function renderDashboard() {
+  const movies=all(), done=watched(), queue=pending();
+  const percent=movies.length?done.length/movies.length*100:0;
+  const avg=average(done);
+  const best=done.filter(m=>m.score!==null).sort((a,b)=>b.score-a.score||a.row-b.row).slice(0,6);
+  const recent=done.length?done[done.length-1]:null;
+  const selected=state.data.selected;
+  byId('view').innerHTML=`
+    <section class="hero"><div><p class="tiny">✦ Meu cinema particular</p><h2>Cada filme, uma nova história para guardar.</h2><p>Crie sua lista, acompanhe os filmes assistidos e registre suas notas. Tudo fica salvo na sua própria planilha.</p>
+      ${actionButton('✦ Sortear um filme','random','primary',!queue.length)} ${actionButton('Ver catálogo','go-catalog','outline')} ${!movies.length?actionButton('＋ Primeiro filme','go-add','outline'):''}
+    </div><div class="hero-art" aria-hidden="true">🍿</div></section>
+    <div class="stats">
+      <div class="stat"><span class="stat-icon">▤</span><p class="label">No catálogo</p><p class="value">${movies.length}</p><p class="hint">filmes registrados</p></div>
+      <div class="stat"><span class="stat-icon">✓</span><p class="label">Assistidos</p><p class="value">${done.length}</p><p class="hint">filmes concluídos</p></div>
+      <div class="stat"><span class="stat-icon">◷</span><p class="label">Pendentes</p><p class="value">${queue.length}</p><p class="hint">próximos da lista</p></div>
+      <div class="stat"><span class="stat-icon">★</span><p class="label">Minha média</p><p class="value">${fmt(avg,2)}</p><p class="hint">escala de 0 a 10</p></div>
+    </div>
+    <div class="panels">
+      <section class="panel"><div class="panel-head"><div><h3>Meu progresso</h3><p>Quanto da coleção você já assistiu</p></div><span style="color:var(--accent);font-size:23px">◕</span></div>
+        <div class="progress-label"><span>${done.length} de ${movies.length} filmes</span><strong>${fmt(percent,0)}%</strong></div>
+        <div class="progress-track"><div style="width:${Math.min(100,Math.max(0,percent))}%"></div></div>
+        <div class="mini-grid"><div class="mini"><span>Último assistido</span><strong class="mini-title">${recent?h(recent.title):'—'}</strong></div><div class="mini"><span>Próximo pendente</span><strong class="mini-title">${queue.length?h(queue[0].title):'—'}</strong></div></div>
+      </section>
+      <section class="panel"><div class="panel-head"><div><h3>Melhores avaliações</h3><p>Seus filmes mais bem pontuados</p></div><span style="color:#f5c78c;font-size:22px">★</span></div>
+        ${best.length?`<div class="rank-list">${best.map((m,i)=>`<div class="rank-row"><span class="rank-n">${String(i+1).padStart(2,'0')}</span><span class="rank-name" title="${h(m.title)}">${h(m.title)}</span><span class="rank-score">${fmt(m.score,2)}</span></div>`).join('')}</div>`:
+        empty('As avaliações aparecerão quando você assistir ao primeiro filme.','⭐')}
+      </section>
+    </div>
+    <section class="section"><div class="section-head"><h2>Sua próxima sessão</h2>${actionButton('Ir para a escolha','go-night','outline small')}</div>
+      <div class="chosen"><p class="eyebrow">${selected?'✦ Filme escolhido':'✦ A próxima sessão começa aqui'}</p><h2>${selected?h(selected.title):movies.length?'Qual filme você vai assistir?':'Seu catálogo está vazio'}</h2>
+      <p>${selected?'Quando terminar, dê uma nota para registrá-lo na sua lista.':movies.length?'Você pode escolher manualmente ou sortear um título pendente.':'Adicione o primeiro filme para começar a montar sua coleção.'}</p>
+      <div class="chosen-actions">${movies.length?actionButton('✦ Sortear agora','random','primary',!queue.length):actionButton('＋ Adicionar filme','go-add','primary')}${actionButton('Abrir filme da vez','go-night','outline')}</div><div class="iconart">🎬</div></div></section>`;
+}
+function renderCatalog() {
+  byId('view').innerHTML=`<div class="filters">
+    <div class="field search"><label for="search">Pesquisar filme</label><input id="search" type="search" placeholder="Nome do filme..." value="${h(state.search)}" autocomplete="off"></div>
+    <div class="field"><label for="filter">Status</label><select id="filter"><option value="all">Todos</option><option value="pending">Pendentes</option><option value="watched">Assistidos</option></select></div>
+    <div class="field"><label for="genreFilter">Gênero</label><select id="genreFilter"><option value="all">Todos os gêneros</option>${genreOptions}<option value="__sem_genero__">Não informado</option></select></div>
+    <div class="field"><label for="order">Ordenar</label><select id="order"><option value="original">Ordem da planilha (padrão)</option><option value="title">Nome (A–Z)</option><option value="title-desc">Nome (Z–A)</option><option value="rating">Melhor nota</option></select></div>
+  </div><div class="section-head"><h2>Filmes cadastrados</h2>${actionButton('＋ Adicionar filme','go-add','primary small')}</div>
+  <div id="movieList" class="catalog-list"></div><p class="catalog-foot" id="catalogFoot"></p>`;
+  byId('filter').value=state.filter;
+  byId('genreFilter').value=state.genre;
+  byId('order').value=state.order;
+  renderCatalogList();
+}
+function renderCatalogList() {
+  const q=normalize(state.search);
+  const list=all().filter(movie=>{
+    if(state.filter==='watched'&&!movie.watched)return false;
+    if(state.filter==='pending'&&movie.watched)return false;
+    if(state.genre==='__sem_genero__' && movie.genre)return false;
+    if(state.genre!=='all' && state.genre!=='__sem_genero__' && normalize(movie.genre)!==normalize(state.genre))return false;
+    return normalize(movie.title).includes(q);
+  });
+  if(state.order==='title')list.sort((a,b)=>a.title.localeCompare(b.title,'pt-BR'));
+  if(state.order==='title-desc')list.sort((a,b)=>b.title.localeCompare(a.title,'pt-BR'));
+  if(state.order==='rating')list.sort((a,b)=>(b.score??-1)-(a.score??-1)||a.row-b.row);
+  if(state.order==='original')list.sort((a,b)=>a.row-b.row);
+  const label=all().length?'Nenhum filme encontrado com estes filtros.':'Nenhum filme cadastrado. Use “Adicionar filme” para começar.';
+  byId('movieList').innerHTML=list.length?list.map(movieCard).join(''):empty(label,all().length?'🔎':'🍿');
+  byId('catalogFoot').textContent=`Mostrando ${list.length} de ${all().length} filmes.`;
+}
+function movieCard(movie) {
+  return `<article class="movie-row"><div class="poster" aria-hidden="true">🎬</div><div class="movie-body"><p class="movie-title">${h(movie.title)}</p>
+    <div class="movie-meta"><span class="pill ${movie.watched?'done':'pending'}">${movie.watched?'✓ Assistido':'◷ Pendente'}</span><span class="genre-tag">${h(movie.genre || 'Não informado')}</span>${movie.watched?'<span>Nota registrada</span>':''}</div>
+    </div><div class="row-actions">${movie.score!==null?`<span class="score">★ ${fmt(movie.score,2)}</span>`:''}
+    <button type="button" class="btn small ${movie.watched?'outline':'primary'}" data-action="${movie.watched?'edit':'select'}" data-row="${movie.row}">${movie.watched?'Editar nota':'Escolher'}</button></div></article>`;
+}
+function renderNight() {
+  const editing=Boolean(state.editMovie);
+  const selected=state.editMovie||state.data.selected;
+  const queue=pending();
+  byId('view').innerHTML=`<div class="night-grid"><div>
+    <div class="chosen"><p class="eyebrow">${editing?'✎ Edição de nota':selected?'🎟️ Filme da vez':'🎟️ Pronto para escolher?'}</p><h2>${selected?h(selected.title):'Qual será o próximo filme?'}</h2>
+      ${selected?`<span class="genre-tag">${h(selected.genre || 'Não informado')}</span>`:''}
+      <p>${editing?'Altere a nota registrada sem mudar a ordem cronológica.':'Escolha um filme pendente ou deixe o sorteador decidir. Depois de assistir, registre sua nota.'}</p>
+      <div class="chosen-actions">${actionButton('✦ Sortear aleatoriamente','random','primary',!queue.length)}${selected&&!editing?actionButton('Limpar escolha','clear','outline'):''}${editing?actionButton('Voltar','cancel-edit','outline'):''}</div>
+      <div class="iconart">🎞</div></div>
+    <section class="panel section"><div class="panel-head"><div><h3>Escolha pela lista</h3><p>${queue.length} filmes aguardando</p></div></div>
+      <div class="stack"><div class="field"><label for="manualMovie">Filme pendente</label><select id="manualMovie" ${queue.length?'':'disabled'}>${queue.length?queue.map(m=>`<option value="${m.row}">${h(m.title)}</option>`).join(''):'<option>Nenhum filme pendente</option>'}</select></div>
+      <button type="button" class="btn outline" data-action="choose-manual" ${queue.length?'':'disabled data-permanent-disabled'}>Escolher este filme</button></div>
+    </section></div>
+    <section class="form-panel"><h2>★ Minha avaliação</h2><p>${editing?'Atualize a nota e salve.':selected?'Já assistiu? Registre a sua nota de 0 a 10.':'Escolha um filme para habilitar o formulário de avaliação.'}</p>
+      ${selected?`<form id="reviewForm" class="stack"><div class="field"><label for="score">Sua nota (0 a 10)</label><input id="score" name="score" type="number" min="0" max="10" step="0.01" required placeholder="Ex.: 8,5" value="${selected.score===null?'':selected.score}"></div>
+      <div class="form-note">Ao avaliar um pendente, ele passa para o final da sequência de assistidos, antes dos pendentes. Alterar uma nota antiga não muda a ordem.</div>
+      <button type="submit" class="btn primary">✓ Salvar avaliação</button></form>`:empty('O formulário aparecerá depois da escolha.','🍿')}
+    </section></div>`;
+}
+function renderAdd() {
+  byId('view').innerHTML=`<section class="form-panel wide-form"><h2>Adicionar um novo filme</h2><p>Cadastre o título e escolha um gênero. O filme será salvo em letras maiúsculas, como pendente e sem nota.</p>
+    <form id="addForm"><div class="field"><label for="newTitle">Nome do filme</label><input id="newTitle" name="newTitle" maxlength="160" minlength="1" placeholder="Ex.: HARRY POTTER" autocomplete="off" required></div>
+    <div class="field"><label for="newGenre">Gênero principal</label><select id="newGenre" name="newGenre" required><option value="" selected disabled>Selecione um gênero...</option>${genreOptions}</select></div>
+    <div class="form-note">O nome é convertido automaticamente para CAIXA ALTA. O gênero fica salvo na coluna D (GÊNERO) do Google Sheets. Os filmes anteriores sem gênero aparecerão como “Não informado”.</div>
+    <div class="form-actions"><button type="submit" class="btn primary">＋ Salvar no catálogo</button><button type="button" class="btn outline" data-action="go-catalog">Voltar ao catálogo</button></div></form>
+    </section>`;
+}
+function empty(message,emoji='🎬') {return `<div class="empty"><span class="emoji">${emoji}</span>${h(message)}</div>`;}
+function byRow(row) {return all().find(m=>m.row===Number(row));}
+
+document.addEventListener('click',async event=>{
+  const nav=event.target.closest('[data-nav]');
+  if(nav){navigate(nav.dataset.nav);return;}
+  const button=event.target.closest('[data-action]');
+  if(!button || button.disabled || state.busy)return;
+  const action=button.dataset.action;
+  if(action==='refresh'){if(await refresh())showToast('Catálogo atualizado.');return;}
+  if(action==='go-catalog')return navigate('catalog');
+  if(action==='go-night')return navigate('night');
+  if(action==='go-add')return navigate('add');
+  if(action==='random'){
+    if(await runMutation('drawRandomMovie')){state.editMovie=null;navigate('night');showToast('Filme sorteado! 🍿');}
+    return;
+  }
+  if(action==='clear'){if(await runMutation('clearSelection'))showToast('Escolha removida.');return;}
+  if(action==='cancel-edit'){state.editMovie=null;renderNight();return;}
+  if(action==='choose-manual'){
+    const movie=byRow(byId('manualMovie').value);
+    if(movie && await runMutation('chooseMovie',movie.row,movie.title)){
+      state.editMovie=null;renderNight();showToast('Filme escolhido. Boa sessão!');
+    }
+    return;
+  }
+  if(action==='select'||action==='edit'){
+    const movie=byRow(button.dataset.row);
+    if(!movie)return;
+    if(action==='edit'){
+      state.editMovie=movie;navigate('night');showToast('Edite a nota e salve.');
+    } else if(await runMutation('chooseMovie',movie.row,movie.title)){
+      state.editMovie=null;navigate('night');showToast('Filme escolhido.');
+    }
+    return;
+  }
+  if(action==='demo-empty'&&IS_PREVIEW){demoStore({movies:[],selected:null});state.data=demoRead();render();showToast('Prévia zerada. Agora cadastre seu primeiro filme.');return;}
+  if(action==='demo-reset'&&IS_PREVIEW){demoStore({movies:demoSeed(),selected:null});state.data=demoRead();render();showToast('Dados fictícios restaurados.');return;}
+});
+document.addEventListener('input',event=>{
+  if(event.target.id==='search'){state.search=event.target.value;renderCatalogList();}
+  if(event.target.id==='newTitle'){event.target.value=event.target.value.toUpperCase();}
+});
+document.addEventListener('change',event=>{
+  if(event.target.id==='filter'){state.filter=event.target.value;renderCatalogList();}
+  if(event.target.id==='order'){state.order=event.target.value;renderCatalogList();}
+  if(event.target.id==='genreFilter'){state.genre=event.target.value;renderCatalogList();}
+});
+document.addEventListener('submit',async event=>{
+  if(event.target.id==='addForm'){
+    event.preventDefault();
+    const title=byId('newTitle').value.replace(/\s+/g,' ').trim().toUpperCase();
+    const genre=byId('newGenre').value;
+    if(title && genre && await runMutation('addMovie',title,genre)){
+      state.search=title;state.filter='all';state.genre='all';navigate('catalog');showToast('Filme adicionado com sucesso!');
+    }
+  }
+  if(event.target.id==='reviewForm'){
+    event.preventDefault();
+    const chosen=state.editMovie||state.data.selected;
+    if(!chosen)return;
+    const score=byId('score').value;
+    if(score===''){showToast('Informe sua nota.',true);return;}
+    if(await runMutation('saveReview',{row:chosen.row,title:chosen.title,score})){
+      state.editMovie=null;navigate('dashboard');showToast('Nota registrada! Mais um filme no histórico.');
+    }
+  }
+});
+
+/* ===================== Prévia offline (dados fictícios) ===================== */
+function demoSeed() {return DEMO_SEED.map((m,i)=>({...m,row:i+2}));}
+let demoFallback=null;
+function demoRead() {
+  if(demoFallback)return JSON.parse(JSON.stringify(demoFallback));
+  let data=null;
+  try { data=JSON.parse(localStorage.getItem(DEMO_KEY)||'null'); } catch(err) {}
+  if(!data||!Array.isArray(data.movies))data={movies:demoSeed(),selected:null};
+  // Prévia criada antes desta versão: filmes antigos podem não ter gênero.
+  data.movies=data.movies.map(movie=>({...movie,genre:movie.genre||''}));
+  if(data.selected)data.selected={...data.selected,genre:data.selected.genre||''};
+  demoFallback=data;
+  return JSON.parse(JSON.stringify(data));
+}
+function demoStore(data) {
+  demoFallback=JSON.parse(JSON.stringify(data));
+  try {localStorage.setItem(DEMO_KEY,JSON.stringify(demoFallback));} catch(err) {}
+}
+function demoCheckTitle(title) {
+  const result=String(title||'').trim().replace(/\s+/g,' ');
+  if(!result||result.length>160||normalize(result)==='FILMES'||/^[=+\-@]/.test(result))throw new Error('Título inválido.');
+  return result.toUpperCase();
+}
+function demoScore(value) {
+  if(value===''||value===null||value===undefined)throw new Error('Informe uma nota.');
+  const number=Number(String(value).replace(',','.'));
+  if(!Number.isFinite(number)||number<0||number>10||Math.abs(number*100-Math.round(number*100))>1e-7)throw new Error('A nota deve ser de 0 a 10.');
+  return number;
+}
+function demoCall(method,...args) {
+  const data=demoRead();
+  const find=(row,title)=>data.movies.find(m=>m.row===Number(row)&&normalize(m.title)===normalize(title)) || data.movies.find(m=>normalize(m.title)===normalize(title));
+  if(method==='getAppData')return {...data,updatedAt:new Date().toISOString()};
+  if(method==='addMovie'){
+    const title=demoCheckTitle(args[0]);
+    const genre=GENRES.find(item=>normalize(item)===normalize(args[1]));
+    if(!genre)throw new Error('Selecione um gênero válido na lista.');
+    if(data.movies.some(m=>normalize(m.title)===normalize(title)))throw new Error('Este filme já está no catálogo.');
+    data.movies.push({row:2+data.movies.length,title,score:null,watched:false,genre});
+  } else if(method==='chooseMovie'){
+    const movie=find(args[0],args[1]);
+    if(!movie||movie.watched)throw new Error('Filme pendente não encontrado.');
+    data.selected=movie;
+  } else if(method==='drawRandomMovie'){
+    const queue=data.movies.filter(m=>!m.watched);
+    if(!queue.length)throw new Error('Não há filmes pendentes para sortear.');
+    data.selected=queue[Math.floor(Math.random()*queue.length)];
+  } else if(method==='clearSelection'){
+    data.selected=null;
+  } else if(method==='saveReview'){
+    const payload=args[0]||{};
+    const movie=find(payload.row,payload.title);
+    if(!movie)throw new Error('Filme não encontrado.');
+    const score=demoScore(payload.score);
+    if(!movie.watched){
+      const index=data.movies.findIndex(m=>!m.watched);
+      const old=data.movies.findIndex(m=>m===movie);
+      data.movies.splice(old,1);
+      movie.score=score;movie.watched=true;
+      data.movies.splice(index,0,movie);
+    } else movie.score=score;
+    data.movies.forEach((m,i)=>{m.row=i+2;});
+    if(data.selected&&normalize(data.selected.title)===normalize(movie.title))data.selected=null;
+  } else throw new Error('Comando não disponível na prévia: '+method);
+  demoStore(data);
+  return {...data,updatedAt:new Date().toISOString()};
+}
+
+if(IS_PREVIEW){
+  byId('demoBanner').hidden=false;
+}
+refresh();
+</script>
+</body>
+</html>
